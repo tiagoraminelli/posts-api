@@ -1,8 +1,15 @@
 <?php
 declare(strict_types=1);
 
-require 'db.php';
+require __DIR__ . '../../config/db.php';
 
+// Conexión PDO (similar a tu db.php original)
+$pdo = new PDO(
+    "mysql:host={$config['host']};dbname={$config['dbname']};charset={$config['charset']}",
+    $config['username'],
+    $config['password'],
+    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+);
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
