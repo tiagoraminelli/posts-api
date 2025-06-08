@@ -1,0 +1,31 @@
+# Ignorar la carpeta vendor (dependencias de Composer)
+vendor/
+
+# Ignorar archivos generados por Composer
+composer.lock
+
+# Ignorar archivos del sistema y del entorno de desarrollo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Ignorar archivos de configuración locales
+.env
+.env.local
+.env.*.local
+
+# Ignorar archivos de log y caché
+*.log
+cache/
+tmp/
+temp/
+
+# Ignorar archivos de editor o IDE comunes
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Ignorar archivos de sistema de Windows y macOS
+ehthumbs.db
+Icon?
