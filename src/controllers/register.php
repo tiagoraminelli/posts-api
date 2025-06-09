@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../../config/db.php';
+
 header('Content-Type: application/json');
 
 // Conexión PDO

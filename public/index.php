@@ -1,34 +1,48 @@
 <?php
-
 declare(strict_types=1);
 
-// Cargar dependencias y configuraciones
+// Iniciar sesión al principio
+session_start();
+
+// Cargar dependencias
 require_once __DIR__ . '/../src/model/Post.php';
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../config/db.php';
 
-// Configuración inicial
+// Configuración CORS segura
+$allowedDomains = [
+    'http://localhost',
+    'http://localhost:8080',
+    'https://tudominio.com'
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? null;
+if ($origin && in_array($origin, $allowedDomains)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+} else {
+    header('Access-Control-Allow-Origin: *');
+}
+
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+header('Access-Control-Allow-Credentials: true');
+header('Vary: Origin');
 
 // Manejo de CORS para solicitudes preflight
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
 }
-// Generación de una nueva API Key (para uso en desarrollo)
-// Nota: En producción, deberías almacenar las claves de forma segura y no generarlas en el código.
-// Puedes ejecutar este script una vez para generar una clave y luego usarla en tu configuración.
-// generate_key.php
-$apiKey = bin2hex(random_bytes(32));
-// echo "Nueva API Key: " . $apiKey;
-// require __DIR__ . '/../config/auth.php';
-\App\Middlewares\Auth::check();
-// Configuración de la base de datos
 
-
+// Autenticación
+try {
+    \App\Middlewares\Auth::check();
+} catch (Exception $e) {
+    http_response_code(401);
+    echo json_encode(['error' => $e->getMessage()]);
+    exit;
+}
 // Importar clases necesarias
 use App\Utils\Validator;
 use App\Utils\Response;

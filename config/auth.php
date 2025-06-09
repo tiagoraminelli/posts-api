@@ -1,9 +1,11 @@
 <?php
-// config/auth.php
+
 return [
-    'api_keys' => [
-        'APP-ADMIN' => 'tu_super_key_secreta_123',  // Key para administración
-        'APP-CLIENT' => 'clave_para_clientes_456'   // Key para clientes
-    ],
-    'require_auth' => false // Cambiar a false en desarrollo
+    'require_auth' => true,
+    'auth_header' => 'HTTP_API_KEY', // Nombre personalizable del header
+    'token_length' => 64, // Longitud esperada de las API Keys
+    'allowed_paths' => [ // Rutas que no requieren autenticación
+        '/api/login',
+        '/api/public'
+    ]
 ];

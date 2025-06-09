@@ -1,7 +1,17 @@
 <?php
 require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../../config/db.php';
-header('Content-Type: application/json');
+
+session_start();
+
+$input = json_decode(file_get_contents("php://input"), true);
+
+if (!isset($input['email'], $input['password'])) {
+    http_response_code(400);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Faltan campos']);
+    exit;
+}
 
 // Conexión PDO
 $pdo = new PDO(
@@ -14,37 +24,30 @@ $pdo = new PDO(
     ]
 );
 
-$input = json_decode(file_get_contents("php://input"), true);
-
-if (!isset($input['email'], $input['password'])) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Faltan campos']);
-    exit;
-}
-
-// Buscar el usuario
+// Buscar usuario
 $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE email = ?");
 $stmt->execute([$input['email']]);
 $user = $stmt->fetch();
 
 if (!$user || !password_verify($input['password'], $user['password'])) {
     http_response_code(401);
+    header('Content-Type: application/json');
     echo json_encode(['error' => 'Credenciales incorrectas']);
     exit;
 }
 
-echo json_encode([
-    'success' => true,
-    'usuario' => [
-        'id' => $user['id'],
-        'nombre' => $user['nombre'],
-        'email' => $user['email'],
-        'rol' => $user['rol'],
-        'api_key' => $user['api_key'] // Se devuelve para usar en el header
-    ]
-]);
+// Guardar API Key en sesión
+$_SESSION['api_key'] = $user['api_key'];
+$_SESSION['usuario'] = [
+    'id' => $user['id'],
+    'nombre' => $user['nombre'],
+    'rol' => $user['rol']
+];
 
-// Actualizar el último acceso del usuario
+// Actualizar último acceso
 $stmt = $pdo->prepare("UPDATE usuarios SET ultimo_acceso = NOW() WHERE id = ?");
 $stmt->execute([$user['id']]);
+
+// Redireccionar
+header('Location: /posts_api/public/index.php');
 exit;
